@@ -77,33 +77,33 @@ export class TrainTicketEstimator {
         }
 
         if (passengersList.length == 2) {
-            let cp = false;
-            let mn = false;
+            let hasCoupleDiscount = false;
+            let hasMinorPassenger = false;
             for (let i=0;i<passengersList.length;i++) {
                 if (passengersList[i].discounts.includes(DiscountCard.Couple)) {
-                    cp = true;
+                    hasCoupleDiscount = true;
                 }
                 if (passengersList[i].age < 18) {
-                    mn = true;
+                    hasMinorPassenger = true;
                 }
             }
-            if (cp && !mn) {
+            if (hasCoupleDiscount && !hasMinorPassenger) {
                 totalTicketPrice -= fetchTicketWithParams * 0.2 * 2;
             }
         }
 
         if (passengersList.length == 1) {
-            let cp = false;
-            let mn = false;
+            let hasCoupleDiscount = false;
+            let hasMinorPassenger = false;
             for (let i=0;i<passengersList.length;i++) {
                 if (passengersList[i].discounts.includes(DiscountCard.HalfCouple)) {
-                    cp = true;
+                    hasCoupleDiscount = true;
                 }
                 if (passengersList[i].age < 18) {
-                    mn = true;
+                    hasMinorPassenger = true;
                 }
             }
-            if (cp && !mn) {
+            if (hasCoupleDiscount && !hasMinorPassenger) {
                 totalTicketPrice -= fetchTicketWithParams * 0.1;
             }
         }
