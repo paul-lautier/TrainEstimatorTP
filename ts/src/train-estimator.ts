@@ -5,11 +5,24 @@ const SPECIAL_DISCOUNT = 1;
 const COUPLE_DISCOUNT = 0.2;
 const HALF_COUPLE_DISCOUNT = 0.1;
 
+
+
 export class TrainTicketEstimator {
     async estimateTrainTicketPrice(trainDetails: TripRequest): Promise<number> {
         this.validateInput(trainDetails);
 
         const fetchTicketWithParams = await this.fetchTicketPrice(trainDetails);
+
+        const familyDiscountPassengers = trainDetails.passengers.filter(passenger => passenger.discounts.includes(DiscountCard.Family));
+
+        if (familyDiscountPassengers.length > 0) {
+            const familyLastNames = familyDiscountPassengers.map(passenger => passenger.lastName);
+            trainDetails.passengers.forEach(passenger => {
+                if (familyLastNames.includes(passenger.lastName)) {
+                    passenger.discounts.push(DiscountCard.Family);
+                }
+            });
+        }
 
         const totalTicketPrice = trainDetails.passengers.reduce((total, passenger) => {
             return total + this.calculateIndividualTicketPrice(fetchTicketWithParams, passenger, trainDetails);
@@ -49,6 +62,9 @@ export class TrainTicketEstimator {
     }
 
     private calculateIndividualTicketPrice(fetchTicketWithParams: number, passenger: Passenger, trainDetails: TripRequest): number {
+        if (passenger.discounts.includes(DiscountCard.Family)) {
+            return fetchTicketWithParams * 0.7; // Apply 30% discount and return immediately
+        }
         let individualTicketPrice = fetchTicketWithParams;
 
         if (passenger.age < 0) {
@@ -69,11 +85,16 @@ export class TrainTicketEstimator {
         const currentDate = new Date();
         const dateDifference = trainDetails.details.when.getTime() - currentDate.getTime();
         const daysDifference = dateDifference / (1000 * 3600 * 24);
+        const timeDifference = trainDetails.details.when.getTime() - currentDate.getTime();
+        const hoursDifference = timeDifference / (1000 * 3600);
 
         if (daysDifference >= 5 && daysDifference <= 30) {
             individualTicketPrice -= (20 - daysDifference) * 0.02 * fetchTicketWithParams;
         } else if (daysDifference > 30) {
-            individualTicketPrice -= fetchTicketWithParams * 0.2;
+            individualTicketPrice -= fetchTicketWithParams * 0.8;
+        }
+        if (hoursDifference <= 6) {
+            individualTicketPrice -= fetchTicketWithParams * 0.8;
         }
 
         if (passenger.age > 0 && passenger.age < 4) {
