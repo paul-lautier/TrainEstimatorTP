@@ -69,10 +69,15 @@ export class TrainTicketEstimator {
         const currentDate = new Date();
         const dateDifference = trainDetails.details.when.getTime() - currentDate.getTime();
         const daysDifference = dateDifference / (1000 * 3600 * 24);
+        const timeDifference = trainDetails.details.when.getTime() - currentDate.getTime();
+        const hoursDifference = timeDifference / (1000 * 3600);
 
         if (daysDifference >= 5 && daysDifference <= 30) {
             individualTicketPrice -= (20 - daysDifference) * 0.02 * fetchTicketWithParams;
         } else if (daysDifference > 30) {
+            individualTicketPrice -= fetchTicketWithParams * 0.2;
+        }
+        if (hoursDifference <= 6) {
             individualTicketPrice -= fetchTicketWithParams * 0.2;
         }
 
