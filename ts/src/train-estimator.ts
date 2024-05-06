@@ -91,10 +91,10 @@ export class TrainTicketEstimator {
         if (daysDifference >= 5 && daysDifference <= 30) {
             individualTicketPrice -= (20 - daysDifference) * 0.02 * fetchTicketWithParams;
         } else if (daysDifference > 30) {
-            individualTicketPrice -= fetchTicketWithParams * 0.2;
+            individualTicketPrice -= fetchTicketWithParams * 0.8;
         }
         if (hoursDifference <= 6) {
-            individualTicketPrice -= fetchTicketWithParams * 0.2;
+            individualTicketPrice -= fetchTicketWithParams * 0.8;
         }
 
         if (passenger.age > 0 && passenger.age < 4) {
