@@ -1,5 +1,5 @@
 export class Passenger {
-    constructor(readonly age: number, readonly discounts: DiscountCard[]){}
+    constructor(readonly age: number, readonly discounts: DiscountCard[], readonly lastName: string){}
 }
 
 export class TripRequest {
@@ -28,4 +28,5 @@ export enum DiscountCard {
     TrainStroke= "TrainStroke",
     Couple = "Couple",
     HalfCouple = "HalfCouple",
+    Family = "Family"
 }
