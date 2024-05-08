@@ -2,7 +2,7 @@ import {InvalidTripInputException, TripRequest} from "./model/trip.request";
 
 export class validateInput {
 
-    private validateInput(trainDetails: TripRequest) {
+    validateInput(trainDetails: TripRequest) {
         if (trainDetails.passengers.length === 0) {
             return 0;
         }

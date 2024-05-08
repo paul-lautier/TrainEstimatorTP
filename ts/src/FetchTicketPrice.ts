@@ -1,8 +1,8 @@
 import {ApiException, TripRequest} from "./model/trip.request";
 
-export class FetchTicketPrice {
+export class fetchTicketPrice {
 
-    private async fetchTicketPrice(trainDetails: TripRequest): Promise<number> {
+    async fetchTicketPrice(trainDetails: TripRequest): Promise<number> {
         const response = await fetch(`https://sncftrenitaliadb.com/api/train/estimate/price?from=${trainDetails.details.from}&to=${trainDetails.details.to}&date=${trainDetails.details.when}`);
         const data = await response.json();
         const fetchTicketWithParams = data?.price || -1;

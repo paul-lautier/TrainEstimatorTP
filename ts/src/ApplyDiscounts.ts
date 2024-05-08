@@ -2,7 +2,10 @@ import {DiscountCard, TripRequest} from "./model/trip.request";
 
 export class applyDiscounts {
 
-    private applyDiscounts(totalTicketPrice: number, fetchTicketWithParams: number, trainDetails: TripRequest): number {
+    applyDiscounts(totalTicketPrice: number, fetchTicketWithParams: number, trainDetails: TripRequest): number {
+
+        const COUPLE_DISCOUNT = 0.2;
+        const HALF_COUPLE_DISCOUNT = 0.1;
         const passengersList = trainDetails.passengers;
 
         if (passengersList.length === 2) {

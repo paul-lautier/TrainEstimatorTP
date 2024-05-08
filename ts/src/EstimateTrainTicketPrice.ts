@@ -1,11 +1,26 @@
-import {DiscountCard, InvalidTripInputException, TripRequest} from "./model/trip.request";
+import {DiscountCard, TripRequest} from "./model/trip.request";
+import { validateInput } from './ValidateInput';
+import { fetchTicketPrice } from './FetchTicketPrice';
+import {calculateIndividualTicketPrice} from "./CalculateIndividualTicketPrice";
+import { applyDiscounts } from './ApplyDiscounts';
+
 
 export class estimateTrainTicketPrice {
+    validateInputInstance: validateInput;
+    fetchTicketPriceInstance: fetchTicketPrice;
+    calculateIndividualTicketPriceInstance: calculateIndividualTicketPrice;
+    applyDiscountsInstance: applyDiscounts;
+    constructor() {
+        this.validateInputInstance = new validateInput();
+        this.fetchTicketPriceInstance = new fetchTicketPrice();
+        this.calculateIndividualTicketPriceInstance = new calculateIndividualTicketPrice();
+        this.applyDiscountsInstance = new applyDiscounts();
+    }
 
     async estimateTrainTicketPrice(trainDetails: TripRequest): Promise<number> {
-        this.validateInput(trainDetails);
+        this.validateInputInstance.validateInput(trainDetails);
 
-        const fetchTicketWithParams = await this.fetchTicketPrice(trainDetails);
+        const fetchTicketWithParams = await this.fetchTicketPriceInstance.fetchTicketPrice(trainDetails);
 
         const familyDiscountPassengers = trainDetails.passengers.filter(passenger => passenger.discounts.includes(DiscountCard.Family));
 
@@ -18,10 +33,10 @@ export class estimateTrainTicketPrice {
             });
         }
 
-        const totalTicketPrice = trainDetails.passengers.reduce((total, passenger) => {
-            return total + this.calculateIndividualTicketPrice(fetchTicketWithParams, passenger, trainDetails);
-        }, 0);
+            const totalTicketPrice = trainDetails.passengers.reduce(async (total, passenger) => {
+                return total + await this.calculateIndividualTicketPriceInstance.calculateIndividualTicketPrice(fetchTicketWithParams, passenger, trainDetails);
+            }, 0);
 
-        return this.applyCoupleDiscounts(totalTicketPrice, fetchTicketWithParams, trainDetails);
+        return this.applyDiscountsInstance.applyDiscounts(await totalTicketPrice, fetchTicketWithParams, trainDetails);
     }
 }

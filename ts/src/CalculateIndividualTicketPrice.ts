@@ -1,8 +1,10 @@
-import {ApiException, DiscountCard, InvalidTripInputException, TripRequest} from "./model/trip.request";
+import {ApiException, DiscountCard, InvalidTripInputException, Passenger, TripRequest} from "./model/trip.request";
 
 export class calculateIndividualTicketPrice {
 
-    private async calculateIndividualTicketPrice(trainDetails: TripRequest): Promise<number> {
+    async calculateIndividualTicketPrice(fetchTicketWithParams: number, passenger: Passenger, trainDetails: TripRequest): Promise<number> {
+        const CHILD_FARE = 9;
+        const SPECIAL_DISCOUNT = 1;
         if (passenger.discounts.includes(DiscountCard.Family)) {
             return fetchTicketWithParams * 0.7;
         }
