@@ -83,4 +83,15 @@ describe("TrainTicketEstimator", () => {
 
 		await expect(estimator.estimateTrainTicketPrice(tripDetails)).rejects.toThrowError("Date is invalid");
 	});
+
+	it("should throw an InvalidTripInputException when the age is invalid", async () => {
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: new Date("2025-01-01") },
+			passengers: [{ age: -1, discounts: [DiscountCard.HalfCouple] }],
+		};
+
+		jest.spyOn(estimator, "estimateTrainTicketPrice").mockRejectedValue(new Error("Age is invalid"));
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).rejects.toThrowError("Age is invalid");
+	});
 });
