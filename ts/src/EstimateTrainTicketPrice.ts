@@ -33,10 +33,12 @@ export class estimateTrainTicketPrice {
             });
         }
 
-            const totalTicketPrice = trainDetails.passengers.reduce(async (total, passenger) => {
-                return total + await this.calculateIndividualTicketPriceInstance.calculateIndividualTicketPrice(fetchTicketWithParams, passenger, trainDetails);
-            }, 0);
+        const individualTicketPrices = await Promise.all(trainDetails.passengers.map(passenger =>
+            this.calculateIndividualTicketPriceInstance.calculateIndividualTicketPrice(fetchTicketWithParams, passenger, trainDetails)
+        ));
 
-        return this.applyDiscountsInstance.applyDiscounts(await totalTicketPrice, fetchTicketWithParams, trainDetails);
+        const totalTicketPrice = individualTicketPrices.reduce((total, price) => total + price, 0);
+
+        return this.applyDiscountsInstance.applyDiscounts(totalTicketPrice, fetchTicketWithParams, trainDetails);
     }
 }
