@@ -36,15 +36,15 @@ export class TrainTicketEstimator {
 			passenger.discounts.includes(DiscountCard.Family)
 		);
 
-		// If there are passengers with a family discount, add the family discount to all passengers with the same last name
-		if (familyDiscountPassengers.length > 0) {
-			const familyLastNames = familyDiscountPassengers.map((passenger) => passenger.lastName);
-			trainDetails.passengers.forEach((passenger) => {
-				if (familyLastNames.includes(passenger.lastName)) {
+		const familyNames = familyDiscountPassengers.map((passenger) => passenger.lastName);
+
+		trainDetails.passengers.forEach((passenger) => {
+			if (familyNames.includes(passenger.lastName)) {
+				if (!passenger.discounts.includes(DiscountCard.Family)) {
 					passenger.discounts.push(DiscountCard.Family);
 				}
-			});
-		}
+			}
+		});
 
 		// Calculate the individual ticket prices for all passengers
 		const individualTicketPrices = await Promise.all(

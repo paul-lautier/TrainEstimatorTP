@@ -11,12 +11,24 @@ export class CalculateIndividualTicketPrice {
 		const CHILD_FARE = 9;
 		const SPECIAL_DISCOUNT = 1;
 
-		// If the passenger has a family discount, apply it
-		if (passenger.discounts.includes(DiscountCard.Family)) {
+		const familyDiscountPassengers = trainDetails.passengers.filter((passenger) =>
+			passenger.discounts.includes(DiscountCard.Family)
+		);
+
+		const familyNames = familyDiscountPassengers.map((passenger) => passenger.lastName);
+
+		trainDetails.passengers.forEach((passenger) => {
+			if (familyNames.includes(passenger.lastName)) {
+				if (!passenger.discounts.includes(DiscountCard.Family)) {
+					passenger.discounts.push(DiscountCard.Family);
+				}
+			}
+		});
+
+		if (passenger.discounts.includes(DiscountCard.Family) && familyNames.length > 1) {
 			return fetchTicketWithParams * 0.7;
 		}
 
-		// Start with the base ticket price
 		let individualTicketPrice = fetchTicketWithParams;
 
 		// If the passenger's age is less than 0, throw an error
@@ -30,7 +42,7 @@ export class CalculateIndividualTicketPrice {
 		} else if (passenger.age >= 70) {
 			individualTicketPrice = fetchTicketWithParams * 0.8;
 			if (passenger.discounts.includes(DiscountCard.Senior)) {
-				individualTicketPrice -= fetchTicketWithParams * 0.2;
+				individualTicketPrice = individualTicketPrice * 0.8;
 			}
 		} else {
 			individualTicketPrice = fetchTicketWithParams * 1.2;
