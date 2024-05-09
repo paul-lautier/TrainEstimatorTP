@@ -5,11 +5,14 @@ import { CalculateIndividualTicketPrice } from "./CalculateIndividualTicketPrice
 import { ApplyDiscounts } from "./ApplyDiscounts";
 
 export class TrainTicketEstimator {
+	// Instances of the classes used in the estimation process
 	validateInputInstance: ValidateInput;
 	fetchTicketPriceInstance: FetchTicketPrice;
 	calculateIndividualTicketPriceInstance: CalculateIndividualTicketPrice;
 	applyDiscountsInstance: ApplyDiscounts;
+
 	constructor() {
+		// Initialize the instances in the constructor
 		this.validateInputInstance = new ValidateInput();
 		this.fetchTicketPriceInstance = new FetchTicketPrice();
 		this.calculateIndividualTicketPriceInstance = new CalculateIndividualTicketPrice();
@@ -17,18 +20,23 @@ export class TrainTicketEstimator {
 	}
 
 	async estimateTrainTicketPrice(trainDetails: TripRequest): Promise<number> {
+		// Validate the input trip details
 		this.validateInputInstance.validateInput(trainDetails);
 
+		// If there are no passengers, return 0 as the ticket price
 		if (trainDetails.passengers.length === 0) {
 			return 0;
 		}
 
+		// Fetch the ticket price based on the trip details
 		const fetchTicketWithParams = await this.fetchTicketPriceInstance.fetchTicketPrice(trainDetails);
 
+		// Filter the passengers who have a family discount
 		const familyDiscountPassengers = trainDetails.passengers.filter((passenger) =>
 			passenger.discounts.includes(DiscountCard.Family)
 		);
 
+		// If there are passengers with a family discount, add the family discount to all passengers with the same last name
 		if (familyDiscountPassengers.length > 0) {
 			const familyLastNames = familyDiscountPassengers.map((passenger) => passenger.lastName);
 			trainDetails.passengers.forEach((passenger) => {
@@ -38,6 +46,7 @@ export class TrainTicketEstimator {
 			});
 		}
 
+		// Calculate the individual ticket prices for all passengers
 		const individualTicketPrices = await Promise.all(
 			trainDetails.passengers.map((passenger) =>
 				this.calculateIndividualTicketPriceInstance.calculateIndividualTicketPrice(
@@ -48,8 +57,10 @@ export class TrainTicketEstimator {
 			)
 		);
 
+		// Sum up the individual ticket prices to get the total ticket price
 		const totalTicketPrice = individualTicketPrices.reduce((total, price) => total + price, 0);
 
+		// Apply discounts to the total ticket price and return it
 		return this.applyDiscountsInstance.applyDiscounts(totalTicketPrice, fetchTicketWithParams, trainDetails);
 	}
 }

@@ -1,47 +1,53 @@
-import { DiscountCard, TripRequest } from "./model/trip.request";
+import { DiscountCard, Passenger, TripRequest } from "./model/trip.request";
 
 export class ApplyDiscounts {
-	applyDiscounts(totalTicketPrice: number, fetchTicketWithParams: number, trainDetails: TripRequest): number {
-		const COUPLE_DISCOUNT = 0.2;
-		const HALF_COUPLE_DISCOUNT = 0.1;
-		const passengersList = trainDetails.passengers;
+    // This method applies discounts to the total ticket price based on the passengers details
+    applyDiscounts(totalTicketPrice: number, fetchTicketWithParams: number, trainDetails: TripRequest): number {
+        // Define the discount rates
+        const COUPLE_DISCOUNT = 0.2;
+        const HALF_COUPLE_DISCOUNT = 0.1;
 
-		if (passengersList.length === 2) {
-			let hasCoupleDiscount = false;
-			let hasMinorPassenger = false;
+        // Get the list of passengers
+        const passengersList = trainDetails.passengers;
 
-			for (let i = 0; i < passengersList.length; i++) {
-				if (passengersList[i].discounts.includes(DiscountCard.Couple)) {
-					hasCoupleDiscount = true;
-				}
-				if (passengersList[i].age < 18) {
-					hasMinorPassenger = true;
-				}
-			}
+        // Helper function to check if a passenger is a minor
+        const isMinorPassenger = (passenger: Passenger) => passenger.age < 18;
 
-			if (hasCoupleDiscount && !hasMinorPassenger) {
-				totalTicketPrice -= fetchTicketWithParams * COUPLE_DISCOUNT * 2;
-			}
-		}
+        // If there are two passengers, check if they have a couple discount
+        if (passengersList.length === 2) {
+            let hasCoupleDiscount = false;
 
-		if (passengersList.length === 1) {
-			let hasCoupleDiscount = false;
-			let hasMinorPassenger = false;
+            // Loop through the passengers to check if any of them has a couple discount
+            for (let i = 0; i < passengersList.length; i++) {
+                if (passengersList[i].discounts.includes(DiscountCard.Couple)) {
+                    hasCoupleDiscount = true;
+                }
+            }
 
-			for (let i = 0; i < passengersList.length; i++) {
-				if (passengersList[i].discounts.includes(DiscountCard.HalfCouple)) {
-					hasCoupleDiscount = true;
-				}
-				if (passengersList[i].age < 18) {
-					hasMinorPassenger = true;
-				}
-			}
+            // If there is a couple discount and the passengers are not minors, apply the discount
+            if (hasCoupleDiscount && !isMinorPassenger) {
+                totalTicketPrice -= fetchTicketWithParams * COUPLE_DISCOUNT * 2;
+            }
+        }
 
-			if (hasCoupleDiscount && !hasMinorPassenger) {
-				totalTicketPrice -= fetchTicketWithParams * HALF_COUPLE_DISCOUNT;
-			}
-		}
+        // If there is only one passenger, check if they have a half couple discount
+        if (passengersList.length === 1) {
+            let hasCoupleDiscount = false;
 
-		return totalTicketPrice;
-	}
+            // Loop through the passengers to check if any of them has a half couple discount
+            for (let i = 0; i < passengersList.length; i++) {
+                if (passengersList[i].discounts.includes(DiscountCard.HalfCouple)) {
+                    hasCoupleDiscount = true;
+                }
+            }
+
+            // If there is a half couple discount and the passenger is not a minor, apply the discount
+            if (hasCoupleDiscount && !isMinorPassenger) {
+                totalTicketPrice -= fetchTicketWithParams * HALF_COUPLE_DISCOUNT;
+            }
+        }
+
+        // Return the total ticket price after applying the discounts
+        return totalTicketPrice;
+    }
 }
