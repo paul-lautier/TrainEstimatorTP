@@ -8,9 +8,25 @@ export class CalculateIndividualTicketPrice {
 	): Promise<number> {
 		const CHILD_FARE = 9;
 		const SPECIAL_DISCOUNT = 1;
-		if (passenger.discounts.includes(DiscountCard.Family)) {
+
+		const familyDiscountPassengers = trainDetails.passengers.filter((passenger) =>
+			passenger.discounts.includes(DiscountCard.Family)
+		);
+
+		const familyNames = familyDiscountPassengers.map((passenger) => passenger.lastName);
+
+		trainDetails.passengers.forEach((passenger) => {
+			if (familyNames.includes(passenger.lastName)) {
+				if (!passenger.discounts.includes(DiscountCard.Family)) {
+					passenger.discounts.push(DiscountCard.Family);
+				}
+			}
+		});
+
+		if (passenger.discounts.includes(DiscountCard.Family) && familyNames.length > 1) {
 			return fetchTicketWithParams * 0.7;
 		}
+
 		let individualTicketPrice = fetchTicketWithParams;
 
 		if (passenger.age < 0) {

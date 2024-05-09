@@ -5,9 +5,10 @@ import { ApiException, DiscountCard, TripRequest } from "../model/trip.request";
 describe("TrainTicketEstimator", () => {
 	let estimator: TrainTicketEstimator;
 	let trainTicket: jest.Mocked<FetchTicketPrice>;
-	let newDate = new Date();
+	let newDate: Date;
 
 	beforeEach(() => {
+		newDate = new Date();
 		estimator = new TrainTicketEstimator();
 		trainTicket = new FetchTicketPrice() as jest.Mocked<FetchTicketPrice>;
 		estimator.fetchTicketPriceInstance = trainTicket;
@@ -126,5 +127,65 @@ describe("TrainTicketEstimator", () => {
 		jest.spyOn(trainTicket, "fetchTicketPrice").mockResolvedValue(100);
 
 		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(60);
+	});
+
+	it("should apply family discount for all passengers with the same last name and Family Card", async () => {
+		newDate = new Date(newDate.getTime() + 7 * 60 * 60 * 1000);
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: newDate },
+			passengers: [
+				{ age: 25, discounts: [DiscountCard.Family], lastName: "Doe" },
+				{ age: 25, discounts: [], lastName: "Doe" },
+			],
+		};
+
+		jest.spyOn(trainTicket, "fetchTicketPrice").mockResolvedValue(100);
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(140);
+	});
+
+	it("should not apply family discount passengers without the same last name if they have a Family Card", async () => {
+		newDate = new Date(newDate.getTime() + 7 * 60 * 60 * 1000);
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: newDate },
+			passengers: [
+				{ age: 25, discounts: [DiscountCard.Family], lastName: "Doe" },
+				{ age: 25, discounts: [], lastName: "Doa" },
+			],
+		};
+
+		jest.spyOn(trainTicket, "fetchTicketPrice").mockResolvedValue(100);
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(240);
+	});
+
+	it("should only apply family discount passengers with the same last name if they have another discount Card", async () => {
+		newDate = new Date(newDate.getTime() + 7 * 60 * 60 * 1000);
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: newDate },
+			passengers: [
+				{ age: 25, discounts: [DiscountCard.Family], lastName: "Doe" },
+				{ age: 80, discounts: [DiscountCard.Senior], lastName: "Doe" },
+			],
+		};
+
+		jest.spyOn(trainTicket, "fetchTicketPrice").mockResolvedValue(100);
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(140);
+	});
+
+	it("should apply couple discount for two passengers with Couple Card", async () => {
+		newDate = new Date(newDate.getTime() + 7 * 60 * 60 * 1000);
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: newDate },
+			passengers: [
+				{ age: 25, discounts: [DiscountCard.Couple], lastName: "Doe" },
+				{ age: 25, discounts: [DiscountCard.Couple], lastName: "Doe" },
+			],
+		};
+
+		jest.spyOn(trainTicket, "fetchTicketPrice").mockResolvedValue(100);
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(160);
 	});
 });
