@@ -22,7 +22,7 @@ export class CalculateIndividualTicketPrice {
 		} else if (passenger.age >= 70) {
 			individualTicketPrice = fetchTicketWithParams * 0.8;
 			if (passenger.discounts.includes(DiscountCard.Senior)) {
-				individualTicketPrice -= fetchTicketWithParams * 0.2;
+				individualTicketPrice = individualTicketPrice * 0.8;
 			}
 		} else {
 			individualTicketPrice = fetchTicketWithParams * 1.2;

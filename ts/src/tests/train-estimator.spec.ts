@@ -1,12 +1,16 @@
+import { FetchTicketPrice } from "../FetchTicketPrice";
 import { TrainTicketEstimator } from "../TrainTicketEstimator";
 import { ApiException, DiscountCard, TripRequest } from "../model/trip.request";
 
 describe("TrainTicketEstimator", () => {
 	let estimator: TrainTicketEstimator;
-	const newDate = new Date();
+	let trainTicket: jest.Mocked<FetchTicketPrice>;
+	let newDate = new Date();
 
 	beforeEach(() => {
 		estimator = new TrainTicketEstimator();
+		trainTicket = new FetchTicketPrice() as jest.Mocked<FetchTicketPrice>;
+		estimator.fetchTicketPriceInstance = trainTicket;
 	});
 
 	//ERRORS
@@ -100,5 +104,27 @@ describe("TrainTicketEstimator", () => {
 		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(0);
 	});
 
-	it("should ");
+	it("should apply senior discount for passengers older than 70", async () => {
+		newDate = new Date(newDate.getTime() + 7 * 60 * 60 * 1000);
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: newDate },
+			passengers: [{ age: 71, discounts: [DiscountCard.Senior], lastName: "Doe" }],
+		};
+
+		jest.spyOn(trainTicket, "fetchTicketPrice").mockResolvedValue(100);
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(64);
+	});
+
+	it("should apply junior discout when passenger is less than 17", async () => {
+		newDate = new Date(newDate.getTime() + 7 * 60 * 60 * 1000);
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: newDate },
+			passengers: [{ age: 16, discounts: [], lastName: "Doe" }],
+		};
+
+		jest.spyOn(trainTicket, "fetchTicketPrice").mockResolvedValue(100);
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(60);
+	});
 });
