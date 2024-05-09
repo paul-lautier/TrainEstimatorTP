@@ -9,6 +9,8 @@ describe("TrainTicketEstimator", () => {
 		estimator = new TrainTicketEstimator();
 	});
 
+	//ERRORS
+
 	it("should estimate train ticket price correctly for a valid trip request", async () => {
 		const tripDetails: TripRequest = {
 			details: { from: "Paris", to: "Marseille", when: newDate },
@@ -67,15 +69,6 @@ describe("TrainTicketEstimator", () => {
 		await expect(estimator.estimateTrainTicketPrice(tripDetails)).rejects.toThrowError("Destination city is invalid");
 	});
 
-	it("should return 0 when no passengers are provided", async () => {
-		const tripDetails: TripRequest = {
-			details: { from: "Paris", to: "Marseille", when: newDate },
-			passengers: [],
-		};
-
-		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(0);
-	});
-
 	it("should throw an InvalidTripInputException when the date is invalid", async () => {
 		const tripDetails: TripRequest = {
 			details: { from: "Paris", to: "Marseille", when: new Date("2020-01-01") },
@@ -95,4 +88,17 @@ describe("TrainTicketEstimator", () => {
 
 		await expect(estimator.estimateTrainTicketPrice(tripDetails)).rejects.toThrowError("Age is invalid");
 	});
+
+	//DOMAIN LOGIC
+
+	it("should return 0 when no passengers are provided", async () => {
+		const tripDetails: TripRequest = {
+			details: { from: "Paris", to: "Marseille", when: newDate },
+			passengers: [],
+		};
+
+		await expect(estimator.estimateTrainTicketPrice(tripDetails)).resolves.toBe(0);
+	});
+
+	it("should ");
 });

@@ -1,4 +1,4 @@
-import { ApiException, DiscountCard, InvalidTripInputException, Passenger, TripRequest } from "./model/trip.request";
+import { DiscountCard, InvalidTripInputException, Passenger, TripRequest } from "./model/trip.request";
 
 export class CalculateIndividualTicketPrice {
 	async calculateIndividualTicketPrice(
